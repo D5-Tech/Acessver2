@@ -222,11 +222,10 @@
                     <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
                     <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                 </svg>
+                <p>Login successful! Redirecting...</p>
             </div>
             
-            <a id="login-link" href="#">
-                <button class="submit-btn" id="login-btn">Login</button>
-            </a>
+            <button class="submit-btn" id="login-btn">Login</button>
         </div>
     </div>
 
@@ -237,7 +236,6 @@
             const passwordInput = document.getElementById('password');
             const errorMsg = document.getElementById('error-msg');
             const loginBtn = document.getElementById('login-btn');
-            const loginLink = document.getElementById('login-link');
             const loginContainer = document.querySelector('.login-container');
             const successAnimation = document.getElementById('success-animation');
             const loadingAnimation = document.getElementById('loading-animation');
@@ -299,10 +297,11 @@
                         // Show success animation
                         successAnimation.style.display = 'block';
                         
-                        // Redirect after animation (replace 'main.html' with your page)
+                        // Redirect after animation
                         setTimeout(function() {
-    window.location.href = '/jarvis/index.html';
-}, 1500);
+                            console.log('Redirecting to jarvis/index.html');
+                            window.location.href = '/jarvis/index.html';
+                        }, 1500);
                     } else {
                         // Show error and shake animation
                         passwordInput.style.display = 'block';
