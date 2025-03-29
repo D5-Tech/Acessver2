@@ -1,7 +1,4 @@
-const express = require('express');
 const axios = require('axios');
-const bodyParser = require('body-parser');
-const app = express();
 
 // Your bot token from BotFather
 const BOT_TOKEN = '7822362143:AAEqlbRwydwdlhpug-c--UAbJJ52DwWQWVU';
@@ -13,13 +10,9 @@ const JSONBIN_BIN_ID = '67e7efd88561e97a50f51fa8';
 const JSONBIN_MASTER_KEY = '$2a$10$REO54EyVDK6DvkiyX0DaKu/ckaJpQvWJd3.sBpM4Dn0gjLy.TYb2G';
 const JSONBIN_ACCESS_KEY = '$2a$10$P5mBlQ.BcqXgUBzVVM.7qOF/G8QqyKBzhgB.tKOm9OltORL3wEN7u';
 
-app.use(bodyParser.json());
-
 // Update password in JSONBin.io
 async function updatePassword(newPassword) {
   try {
-    console.log(`Updating password to: ${newPassword}`);
-    
     const response = await axios.put(
       `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`,
       { password: newPassword },
@@ -72,60 +65,66 @@ async function sendTelegramMessage(chatId, text) {
   }
 }
 
-// Handle incoming Telegram messages
-app.post('/', async (req, res) => {
-  console.log('Received webhook request');
-  
-  try {
-    const message = req.body.message;
-    
-    if (!message || !message.text) {
-      return res.sendStatus(200);
-    }
-    
-    // Check if it's authorized user sending the message
-    if (message.from.id.toString() === AUTHORIZED_USER_ID) {
-      if (message.text.startsWith('/setpassword ')) {
-        const newPassword = message.text.split(' ')[1];
-        
-        if (!newPassword || newPassword.trim() === '') {
-          await sendTelegramMessage(message.chat.id, 'Please provide a valid password. Usage: /setpassword yourpassword');
-        } else {
-          // Update password in JSONBin.io
-          const success = await updatePassword(newPassword);
-          
-          // Send confirmation message
-          const responseText = success
-            ? `✅ Password has been updated to: ${newPassword}`
-            : '❌ Failed to update password. Please try again.';
-          
-          await sendTelegramMessage(message.chat.id, responseText);
-        }
-      } else if (message.text === '/getpassword') {
-        // Get current password and send it back
-        const currentPassword = await getCurrentPassword();
-        
-        if (currentPassword) {
-          await sendTelegramMessage(message.chat.id, `Current password is: ${currentPassword}`);
-        } else {
-          await sendTelegramMessage(message.chat.id, 'Could not retrieve the current password');
-        }
-      } else if (message.text === '/help') {
-        const helpText = 'Available commands:\n' +
-                         '/setpassword [new-password] - Update the login password\n' +
-                         '/getpassword - Show the current password\n' +
-                         '/help - Show this help message';
-        
-        await sendTelegramMessage(message.chat.id, helpText);
-      }
-    }
-  } catch (error) {
-    console.error('Error processing webhook:', error);
+// Serverless function handler
+module.exports = async (req, res) => {
+  // Handle GET requests (for webhook verification)
+  if (req.method === 'GET') {
+    return res.status(200).send('Webhook is active');
   }
   
-  // Always return 200 to Telegram
-  res.sendStatus(200);
-});
-
-// Export the Express app as serverless function
-module.exports = app;
+  // Handle POST requests (for webhook)
+  if (req.method === 'POST') {
+    try {
+      const message = req.body.message;
+      
+      if (!message || !message.text) {
+        return res.status(200).end();
+      }
+      
+      // Check if it's authorized user sending the message
+      if (message.from.id.toString() === AUTHORIZED_USER_ID) {
+        if (message.text.startsWith('/setpassword ')) {
+          const newPassword = message.text.split(' ')[1];
+          
+          if (!newPassword || newPassword.trim() === '') {
+            await sendTelegramMessage(message.chat.id, 'Please provide a valid password. Usage: /setpassword yourpassword');
+          } else {
+            // Update password in JSONBin.io
+            const success = await updatePassword(newPassword);
+            
+            // Send confirmation message
+            const responseText = success
+              ? `✅ Password has been updated to: ${newPassword}`
+              : '❌ Failed to update password. Please try again.';
+            
+            await sendTelegramMessage(message.chat.id, responseText);
+          }
+        } else if (message.text === '/getpassword') {
+          // Get current password and send it back
+          const currentPassword = await getCurrentPassword();
+          
+          if (currentPassword) {
+            await sendTelegramMessage(message.chat.id, `Current password is: ${currentPassword}`);
+          } else {
+            await sendTelegramMessage(message.chat.id, 'Could not retrieve the current password');
+          }
+        } else if (message.text === '/help') {
+          const helpText = 'Available commands:\n' +
+                          '/setpassword [new-password] - Update the login password\n' +
+                          '/getpassword - Show the current password\n' +
+                          '/help - Show this help message';
+          
+          await sendTelegramMessage(message.chat.id, helpText);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+    }
+    
+    // Always return 200 to Telegram
+    return res.status(200).end();
+  }
+  
+  // Handle other HTTP methods
+  return res.status(405).send('Method Not Allowed');
+};
