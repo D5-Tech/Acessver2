@@ -2,13 +2,13 @@
   "version": 2,
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
-    { "src": "main.html", "use": "@vercel/static" },
+    { "src": "/jarvis2025 ver 1/index.html", "use": "@vercel/static" },
     { "src": "api/webhook.js", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/webhook", "dest": "/api/webhook.js" },
     { "src": "/api/webhook", "dest": "/api/webhook.js" },
     { "src": "/", "dest": "/index.html" },
-    { "src": "/main", "dest": "/main.html" }
+    { "src": "/jarvis2025 ver 1/index.html", "dest": "/jarvis2025 ver 1/index.html" }
   ]
 }
