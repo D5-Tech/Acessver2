@@ -75,14 +75,14 @@ module.exports = async (req, res) => {
   // Handle POST requests (for webhook)
   if (req.method === 'POST') {
     try {
-      const message = req.body.message;
+      const message = req.body && req.body.message;
       
       if (!message || !message.text) {
         return res.status(200).end();
       }
       
       // Check if it's authorized user sending the message
-      if (message.from.id.toString() === AUTHORIZED_USER_ID) {
+      if (message.from && message.from.id && message.from.id.toString() === AUTHORIZED_USER_ID) {
         if (message.text.startsWith('/setpassword ')) {
           const newPassword = message.text.split(' ')[1];
           
@@ -116,6 +116,9 @@ module.exports = async (req, res) => {
           
           await sendTelegramMessage(message.chat.id, helpText);
         }
+      } else {
+        // Unauthorized access attempt (optional logging)
+        console.log('Unauthorized access attempt');
       }
     } catch (error) {
       console.error('Error processing webhook:', error);
