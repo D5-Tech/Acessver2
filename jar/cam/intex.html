@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vision Detector</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Vision Detector</h1>
+            <div class="mode-toggle">
+                <input type="checkbox" id="darkModeToggle" class="dark-mode-toggle">
+                <label for="darkModeToggle" class="toggle-label">
+                    <i class="bi bi-moon"></i>
+                    <i class="bi bi-sun"></i>
+                </label>
+            </div>
+        </div>
+        
+        <div class="camera-section">
+            <div class="camera-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="output-canvas"></canvas>
+                <div class="camera-overlay">
+                    <div id="loading-spinner" class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detection-panel">
+            <div class="detection-info">
+                <div class="detection-header">
+                    <h3>Detected Objects</h3>
+                    <button id="clear-btn" class="clear-btn">Clear</button>
+                </div>
+                <ul id="object-list" class="object-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.7.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.7.0/dist/tf-backend-webgl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
