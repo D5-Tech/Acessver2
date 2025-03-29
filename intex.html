@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+
+        .login-header {
+            background-color: #5b63b7;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .login-header h2 {
+            color: white;
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .login-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .login-form {
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #5b63b7;
+            outline: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            background-color: #5b63b7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #4a51a5;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
+            }
+            
+            .login-header {
+                padding: 20px;
+            }
+            
+            .login-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .login-form {
+                padding: 20px;
+            }
+        }
+        
+        /* Success animation */
+        .success-checkmark {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: inline-block;
+            stroke-width: 2;
+            stroke: #4bb71b;
+            stroke-miterlimit: 10;
+        }
+        
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+        }
+        
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2>Secure Access</h2>
+            <p>Enter your password to continue</p>
+        </div>
+        
+        <div class="login-form">
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+                <p class="error-message" id="error-msg">Incorrect password. Please try again.</p>
+            </div>
+            
+            <div class="success-checkmark" id="success-animation">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+            
+            <a id="login-link" href="#">
+                <button class="submit-btn" id="login-btn">Login</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const loginForm = document.querySelector('.login-form');
+            const passwordInput = document.getElementById('password');
+            const errorMsg = document.getElementById('error-msg');
+            const loginBtn = document.getElementById('login-btn');
+            const loginLink = document.getElementById('login-link');
+            const loginContainer = document.querySelector('.login-container');
+            const successAnimation = document.getElementById('success-animation');
+            
+            // Function to get current password from localStorage
+            // In a real application, you would fetch this from your backend
+            function getCurrentPassword() {
+                // Default password if not set yet
+                if (!localStorage.getItem('securePassword')) {
+                    localStorage.setItem('securePassword', 'admin123');
+                }
+                return localStorage.getItem('securePassword');
+            }
+            
+            // Validate password and redirect if correct
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const inputPassword = passwordInput.value;
+                const correctPassword = getCurrentPassword();
+                
+                if (inputPassword === correctPassword) {
+                    // Show success animation
+                    passwordInput.style.display = 'none';
+                    document.querySelector('label').style.display = 'none';
+                    loginBtn.style.display = 'none';
+                    successAnimation.style.display = 'block';
+                    
+                    // Redirect after animation (replace 'main.html' with your page)
+                    setTimeout(function() {
+                        // You will manually connect this to your main page
+                        window.location.href = 'main.html';
+                    }, 1500);
+                } else {
+                    // Show error and shake animation
+                    errorMsg.style.display = 'block';
+                    loginContainer.classList.add('shake');
+                    
+                    // Remove shake class after animation completes
+                    setTimeout(function() {
+                        loginContainer.classList.remove('shake');
+                    }, 500);
+                }
+            });
+            
+            // Clear error message when user starts typing again
+            passwordInput.addEventListener('input', function() {
+                errorMsg.style.display = 'none';
+            });
+            
+            // Allow form submission with Enter key
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+
+            // Telegram Bot Integration (commented pseudo-code)
+            /*
+            This is where you'd implement the Telegram bot integration.
+            When a message is received by your bot to change the password,
+            you would update the password in localStorage or your database.
+            
+            Example Telegram bot webhook handler (server-side):
+            
+            app.post('/bot-webhook', (req, res) => {
+                const { message } = req.body;
+                
+                // Check if it's an authorized user and command
+                if (isAuthorized(message.from.id) && message.text.startsWith('/setpassword')) {
+                    const newPassword = message.text.split(' ')[1];
+                    
+                    // Update password in database or storage
+                    updatePassword(newPassword);
+                    
+                    // Respond to Telegram
+                    sendTelegramMessage(message.chat.id, 'Password updated successfully!');
+                }
+                
+                res.status(200).send('OK');
+            });
+            */
+        });
+    </script>
+</body>
+</html>
